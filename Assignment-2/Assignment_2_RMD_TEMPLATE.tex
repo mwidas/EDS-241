@@ -1,0 +1,588 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\setlength{\parindent}{1em} \usepackage{float} \renewcommand{\thesubsection}{Question (\alph{subsection})}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={EDS241: Assignment 2},
+  pdfauthor={Melissa Widas},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{EDS241: Assignment 2}
+\author{Melissa Widas}
+\date{02/03/2024}
+
+\begin{document}
+\maketitle
+
+\textbf{Reminders:} Make sure to read through the setup in markdown.
+Remember to fully report/interpret your results and estimates (in
+writing) + present them in tables/plots.
+
+\hypertarget{part-1-treatment-ignorability-assumption-and-applying-matching-estimators-19-points}{%
+\section{Part 1 Treatment Ignorability Assumption and Applying Matching
+Estimators (19
+points):}\label{part-1-treatment-ignorability-assumption-and-applying-matching-estimators-19-points}}
+
+The goal is to estimate the causal effect of maternal smoking during
+pregnancy on infant birth weight using the treatment ignorability
+assumptions. The data are taken from the National Natality Detail Files,
+and the extract ``SMOKING\_EDS241.csv''' is a random sample of all
+births in Pennsylvania during 1989-1991. Each observation is a
+mother-infant pair. The key variables are:
+
+\textbf{The outcome and treatment variables are:}
+
+\indent birthwgt=birth weight of infant in grams
+
+\indent tobacco=indicator for maternal smoking
+
+\textbf{The control variables are:}
+
+\indent mage (mother's age), meduc (mother's education), mblack (=1 if
+mother identifies as Black), alcohol (=1 if consumed alcohol during
+pregnancy), first (=1 if first child), diabete (=1 if mother diabetic),
+anemia (=1 if mother anemic)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load data for Part 1}
+\NormalTok{smoking}\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"Assignment{-}2"}\NormalTok{, }\StringTok{"data"}\NormalTok{, }\StringTok{"SMOKING\_EDS241.csv"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{mean-differences-assumptions-and-covariates-3-pts}{%
+\subsection{\texorpdfstring{Mean Differences, Assumptions, and
+Covariates \emph{(3
+pts)}}{Mean Differences, Assumptions, and Covariates (3 pts)}}\label{mean-differences-assumptions-and-covariates-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\tightlist
+\item
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  What is the mean difference in birth weight of infants with smoking
+  and non-smoking mothers {[}1 pts{]}?
+\item
+  Under what assumption does this correspond to the average treatment
+  effect of maternal smoking during pregnancy on infant birth weight
+  {[}0.5 pts{]}?
+\item
+  Calculate and create a table demonstrating the differences in the mean
+  proportions/values of covariates observed in smokers and non-smokers
+  (remember to report whether differences are statistically significant)
+  and discuss whether this provides empirical evidence for or against
+  this assumption. Remember that this is observational data.
+\item
+  What other quantitative empirical evidence or test could help you
+  assess the former assumption? {[}1.5 pts: 0.5 pts table, 1 pts
+  discussion{]}
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Calculate mean difference. Remember to calculate a measure of statistical significance}
+
+\NormalTok{smoking\_t }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(smoking}\SpecialCharTok{$}\NormalTok{birthwgt[smoking}\SpecialCharTok{$}\NormalTok{tobacco}\SpecialCharTok{==}\DecValTok{0}\NormalTok{], smoking}\SpecialCharTok{$}\NormalTok{birthwgt[smoking}\SpecialCharTok{$}\NormalTok{tobacco}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
+
+\FunctionTok{diff}\NormalTok{(smoking\_t}\SpecialCharTok{$}\NormalTok{estimate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## mean of y 
+## -244.5394
+\end{verbatim}
+
+\begin{itemize}
+\item
+  On average babies born to mothers who smoke are 244.53 grams less than
+  babies born to mothers who do not smoke in Pennsylvania between 1989
+  and 1991 (p-value of less than 1 out of 1000 making this measure
+  statistically significant).
+\item
+  This corresponds to the average treatment effect of maternal smoking
+  during pregnancy on infant birth weight when the assumption that the
+  treatment which is smoking, is not correlated with any other variables
+  or factors.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Selecting binary and continuous variables from the dataset}
+\NormalTok{pretreat\_binary }\OtherTok{\textless{}{-}}\NormalTok{ smoking }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(anemia, diabete, tobacco, alcohol, mblack)}
+\NormalTok{pretreat\_continuous }\OtherTok{\textless{}{-}}\NormalTok{ smoking }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(mage, meduc, birthwgt, tobacco)}
+\CommentTok{\# Initialize empty data frames to store results of tests}
+\NormalTok{prop\_test\_results }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+\NormalTok{t\_test\_results }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{()}
+\CommentTok{\# Identifying binary variables for proportion tests}
+\NormalTok{binary\_vars }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(pretreat\_binary)}
+
+\ControlFlowTok{for}\NormalTok{ (var }\ControlFlowTok{in}\NormalTok{ binary\_vars) \{}
+\CommentTok{\# Splitting the data into treated and untreated groups for the current variable}
+\NormalTok{treated }\OtherTok{\textless{}{-}}\NormalTok{ pretreat\_binary }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(tobacco }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(}\SpecialCharTok{!!}\FunctionTok{sym}\NormalTok{(var))}
+\NormalTok{untreated }\OtherTok{\textless{}{-}}\NormalTok{ pretreat\_binary }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(tobacco }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(}\SpecialCharTok{!!}\FunctionTok{sym}\NormalTok{(var))}
+\CommentTok{\# Performing the proportion test}
+\NormalTok{prop\_test\_result }\OtherTok{\textless{}{-}} \FunctionTok{prop.test}\NormalTok{(}\AttributeTok{x =} \FunctionTok{c}\NormalTok{(}\FunctionTok{sum}\NormalTok{(treated), }\FunctionTok{sum}\NormalTok{(untreated)),}
+\AttributeTok{n =} \FunctionTok{c}\NormalTok{(}\FunctionTok{length}\NormalTok{(treated), }\FunctionTok{length}\NormalTok{(untreated)),}
+\AttributeTok{correct =} \ConstantTok{FALSE}\NormalTok{)}
+\CommentTok{\# Storing the tidy results of the proportion test in the data frame}
+\NormalTok{prop\_test\_result\_tidy }\OtherTok{\textless{}{-}}\NormalTok{ broom}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(prop\_test\_result)}
+\NormalTok{prop\_test\_result\_tidy}\SpecialCharTok{$}\NormalTok{Variable }\OtherTok{\textless{}{-}}\NormalTok{ var}
+\NormalTok{prop\_test\_results }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(prop\_test\_results, prop\_test\_result\_tidy)}
+\NormalTok{\}}
+
+\CommentTok{\# Identifying continuous variables for t{-}tests}
+\NormalTok{continuous\_vars }\OtherTok{\textless{}{-}} \FunctionTok{names}\NormalTok{(pretreat\_continuous)}
+
+\CommentTok{\# for (var in continuous\_vars) \{}
+\CommentTok{\# \# Dynamically creating the formula for the t{-}test}
+\CommentTok{\# formula \textless{}{-} as.formula(paste(var, "\textasciitilde{} tobacco"))}
+\CommentTok{\# \# Performing the t{-}test}
+\CommentTok{\# t\_test\_result \textless{}{-} t.test(formula, data = pretreat\_continuous)}
+\CommentTok{\# \# Storing the tidy results of the t{-}test in the data frame}
+\CommentTok{\# t\_test\_result\_tidy \textless{}{-} broom::tidy(t\_test\_result)}
+\CommentTok{\# t\_test\_result\_tidy$Variable \textless{}{-} var}
+\CommentTok{\# t\_test\_results \textless{}{-} rbind(t\_test\_results, t\_test\_result\_tidy)}
+\CommentTok{\# \}}
+
+
+\NormalTok{mage }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(mage }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tobacco, }\AttributeTok{data =}\NormalTok{ pretreat\_continuous)}
+\NormalTok{meduc }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(meduc }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tobacco, }\AttributeTok{data =}\NormalTok{ pretreat\_continuous)}
+\NormalTok{birthwgt }\OtherTok{\textless{}{-}} \FunctionTok{t.test}\NormalTok{(birthwgt }\SpecialCharTok{\textasciitilde{}}\NormalTok{ tobacco, }\AttributeTok{data =}\NormalTok{ pretreat\_continuous)}
+
+\NormalTok{t\_test\_result\_tidy }\OtherTok{\textless{}{-}}\NormalTok{ broom}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(mage, meduc, birthwgt)}
+\NormalTok{t\_test\_result\_tidy}\SpecialCharTok{$}\NormalTok{Variable }\OtherTok{\textless{}{-}}\NormalTok{ var}
+\NormalTok{t\_test\_results }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(t\_test\_results, t\_test\_result\_tidy)}
+
+\CommentTok{\# Combining the results of proportion and t{-}tests into a single data frame}
+\NormalTok{combined\_results }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}
+\NormalTok{prop\_test\_results }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Variable, estimate1, estimate2, p.value),}
+\NormalTok{t\_test\_results }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Variable, estimate1, estimate2, p.value)}
+\NormalTok{)}
+
+\CommentTok{\# Creating a table for output using kable and kableExtra}
+\NormalTok{combined\_results\_table }\OtherTok{\textless{}{-}} \FunctionTok{kable}\NormalTok{(combined\_results, }\AttributeTok{format =} \StringTok{"latex"}\NormalTok{,}
+\AttributeTok{col.names =} \FunctionTok{c}\NormalTok{(}\StringTok{"Variable"}\NormalTok{, }\StringTok{"Proportion or Mean Treated"}\NormalTok{,}
+\StringTok{"Proportion or Mean Control"}\NormalTok{, }\StringTok{"P{-}Value"}\NormalTok{),}
+\AttributeTok{caption =} \StringTok{"Treated and Untreated Pre{-}treatment Proportion and T{-} Test"}\NormalTok{) }\SpecialCharTok{|\textgreater{}} 
+\FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{font\_size =} \DecValTok{7}\NormalTok{, }\AttributeTok{latex\_options =} \StringTok{"hold\_position"}\NormalTok{)}
+
+\CommentTok{\# Displaying the table}
+\NormalTok{combined\_results\_table}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}[!h]
+\centering
+\caption{\label{tab:unnamed-chunk-3}Treated and Untreated Pre-treatment Proportion and T- Test}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{l|r|r|r}
+\hline
+Variable & Proportion or Mean Treated & Proportion or Mean Control & P-Value\\
+\hline
+anemia & 0.0141031 & 0.0078005 & 0.0000000\\
+\hline
+diabete & 0.0175187 & 0.0173636 & 0.8858005\\
+\hline
+tobacco & 1.0000000 & 0.0000000 & 0.0000000\\
+\hline
+alcohol & 0.0441825 & 0.0071033 & 0.0000000\\
+\hline
+mblack & 0.1354121 & 0.1086279 & 0.0000000\\
+\hline
+mblack & 27.4530853 & 25.5385632 & 0.0000000\\
+\hline
+\end{tabular}
+\end{table}
+
+\hypertarget{ate-and-covariate-balance-3-pts}{%
+\subsection{\texorpdfstring{ATE and Covariate Balance \emph{(3
+pts)}}{ATE and Covariate Balance (3 pts)}}\label{ate-and-covariate-balance-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Assume that maternal smoking is randomly assigned conditional on the
+  observable covariates listed above. Estimate the effect of maternal
+  smoking on birth weight using an OLS regression with NO linear
+  controls for the covariates {[}0.5 pts{]}. Perform the same estimate
+  including the control variables {[}0.5 pts{]}. Next, compute indices
+  of covariate imbalance between the treated and non-treated regarding
+  these covariates (see example file from class). Present your results
+  in a table {[}1 pts{]}. What do you find and what does it say
+  regarding whether the assumption you mentioned responding to a) is
+  fulfilled? {[}1 pts{]}
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# ATE Regression univariate}
+
+
+\CommentTok{\# ATE with covariates}
+
+
+\CommentTok{\# Present Regression Results}
+
+
+\CommentTok{\# Covariate balance}
+
+
+\CommentTok{\# Balance Table }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{propensity-score-estimation-3-pts}{%
+\subsection{\texorpdfstring{Propensity Score Estimation \emph{(3
+pts)}}{Propensity Score Estimation (3 pts)}}\label{propensity-score-estimation-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Next, estimate propensity scores (i.e.~probability of being treated)
+  for the sample, using the provided covariates. Create a regression
+  table reporting the results of the regression and discuss what the
+  covariate coefficients indicate and interpret one coefficient {[}1.5
+  pts{]}. Create histograms of the propensity scores comparing the
+  distributions of propensity scores for smokers (`treated') and
+  non-smokers (`control'), discuss the overlap and what it means {[}1.5
+  pts{]}.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Propensity Scores}
+
+
+\DocumentationTok{\#\# PS Histogram Unmatched }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{matching-balance-3-pts}{%
+\subsection{\texorpdfstring{Matching Balance \emph{(3
+pts)}}{Matching Balance (3 pts)}}\label{matching-balance-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Next, match treated/control mothers using your estimated propensity
+  scores and nearest neighbor matching. Compare the balancing of
+  pretreatment characteristics (covariates) between treated and
+  non-treated units in the original dataset (from c) with the matched
+  dataset (think about comparing histograms/regressions) {[}2 pts{]}.
+  Make sure to report and discuss the balance statistics {[}1 pts{]}.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Nearest{-}neighbor Matching}
+
+\DocumentationTok{\#\# Covariate Imbalance post matching: }
+
+
+\DocumentationTok{\#\# Histogram of PS after matching}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{ate-with-nearest-neighbor-3-pts}{%
+\subsection{\texorpdfstring{ATE with Nearest Neighbor \emph{(3
+pts)}}{ATE with Nearest Neighbor (3 pts)}}\label{ate-with-nearest-neighbor-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  Estimate the ATT using the matched dataset. Report and interpret your
+  result (Note: no standard error or significance test is required here)
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Nearest Neighbor }
+
+\DocumentationTok{\#\# ATT}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{ate-with-wls-matching-3-pts}{%
+\subsection{\texorpdfstring{ATE with WLS Matching \emph{(3
+pts)}}{ATE with WLS Matching (3 pts)}}\label{ate-with-wls-matching-3-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  Last, use the original dataset and perform the weighted least squares
+  estimation of the ATE using the propensity scores (including
+  controls). Report and interpret your results, here include both size
+  and precision of estimate in reporting and interpretation.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Weighted least Squares (WLS) estimator Preparation}
+
+
+\DocumentationTok{\#\# Weighted least Squares (WLS) Estimates}
+
+
+\DocumentationTok{\#\# Present Results}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{differences-in-estimates-1-pts}{%
+\subsection{\texorpdfstring{Differences in Estimates \emph{(1
+pts)}}{Differences in Estimates (1 pts)}}\label{differences-in-estimates-1-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Explain why it was to be expected given your analysis above that there
+  is a difference between your estimates in e) and f)?
+\end{enumerate}
+
+\newpage
+
+\hypertarget{part-2-panel-model-and-fixed-effects-6-points}{%
+\section{Part 2 Panel model and fixed effects (6
+points)}\label{part-2-panel-model-and-fixed-effects-6-points}}
+
+\indent We will use the progresa data from last time as well as a new
+dataset. In the original dataset, treatment households had been
+receiving the transfer for a year. Now, you get an additional dataset
+with information on the same households from before the program was
+implemented, establishing a baseline study (from 1997), and the same
+data we worked with last time (from 1999). \indent *Note: You will need
+to install the packages plm and dplyr (included in template preamble).
+Again, you can find a description of the variables at the bottom of PDF
+and HERE.
+
+\hypertarget{estimating-effect-with-first-difference-3-pts-1.5-pts-estimate-1.5-pts-interpretation}{%
+\subsection{\texorpdfstring{Estimating Effect with First Difference
+\emph{(3 pts: 1.5 pts estimate, 1.5 pts
+interpretation)}}{Estimating Effect with First Difference (3 pts: 1.5 pts estimate, 1.5 pts interpretation)}}\label{estimating-effect-with-first-difference-3-pts-1.5-pts-estimate-1.5-pts-interpretation}}
+
+Setup: Load the new baseline data (progresa\_pre\_1997.csv) and the
+follow-up data (progresa\_post\_1999.csv) into R. Note that we created a
+time denoting variable (with the same name, `year') in BOTH datasets.
+Then, create a panel dataset by appending the data (i.e.~binding the
+dataset row-wise together creating a single dataset). We want to examine
+the same outcome variable as before, value of animal holdings (vani).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{rm}\NormalTok{(}\AttributeTok{list=}\FunctionTok{ls}\NormalTok{()) }\CommentTok{\# clean environment}
+
+\DocumentationTok{\#\# Load the datasets}
+\NormalTok{pre\_1997 }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"Assignment{-}2"}\NormalTok{, }\StringTok{"data"}\NormalTok{, }\StringTok{"progresa\_pre\_1997.csv"}\NormalTok{))}
+\NormalTok{post\_1999 }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"Assignment{-}2"}\NormalTok{, }\StringTok{"data"}\NormalTok{, }\StringTok{"progresa\_post\_1999.csv"}\NormalTok{))}
+
+\DocumentationTok{\#\# Append post to pre dataset }
+\CommentTok{\#progresa \textless{}{-} rbind(progresa\_pre\_1997, progresa\_post\_1999)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\tightlist
+\item
+  Estimate a first-difference (FD) regression manually, interpret the
+  results briefly (size of coefficient and precision!) \indent *Note:
+  Calculate the difference between pre- and post- program outcomes for
+  each family. To do that, follow these steps and the code given in the
+  R-template:
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# Code included to help get you started}
+\DocumentationTok{\#\# i. Sort the panel data in the order in which you want to take differences, i.e. by household and time.}
+
+\DocumentationTok{\#\# Create first differences of variables}
+\CommentTok{\# progresa \textless{}{-} progresa \%\textgreater{}\% }
+\CommentTok{\#   arrange(hhid, year) \%\textgreater{}\% }
+\CommentTok{\#   group\_by(hhid)}
+
+\DocumentationTok{\#\# ii. Calculate the first difference using the lag function from the dplyr package.}
+\CommentTok{\#     mutate(vani\_fd = vani {-} dplyr::lag(vani)) }
+
+\DocumentationTok{\#\# iii. Estimate manual first{-}difference regression (Estimate the regression using the newly created variables.)}
+\CommentTok{\# fd\_manual \textless{}{-} lm(vani\_fd \textasciitilde{} ...)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{fixed-effects-estimates-2-pts-1-pts-estimate-1.5-interpretation}{%
+\subsection{\texorpdfstring{Fixed Effects Estimates \emph{(2 pts: 1 pts
+estimate, 1.5
+interpretation)}}{Fixed Effects Estimates (2 pts: 1 pts estimate, 1.5 interpretation)}}\label{fixed-effects-estimates-2-pts-1-pts-estimate-1.5-interpretation}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Now also run a fixed effects (FE or `within') regression and compare
+  the results. Interpret the estimated treatment effects briefly (size
+  of coefficient and precision!)
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Fixed Effects Regression}
+
+\DocumentationTok{\#\# Present Regression Results}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{first-difference-and-fixed-effects-and-omitted-variable-problems-1-pts}{%
+\subsection{\texorpdfstring{First Difference and Fixed Effects and
+Omitted Variable Problems \emph{(1
+pts)}}{First Difference and Fixed Effects and Omitted Variable Problems (1 pts)}}\label{first-difference-and-fixed-effects-and-omitted-variable-problems-1-pts}}
+
+\begin{enumerate}
+\def\labelenumi{\alph{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Explain briefly how the FD and FE estimator solves a specific omitted
+  variable problem? Look at the example on beer tax and traffic
+  fatalities from class to start thinking about ommitted variables. Give
+  an example of a potential omitted variable for the example we are
+  working with here that might confound our results? For that omitted
+  variable, is a FE or FD estimator better? One example is enough.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,391 @@
+---
+title: "EDS241: Assignment 2"
+author: "Melissa Widas"
+date: '`r format(Sys.time(), "%m/%d/%Y")`'
+output: 
+  pdf_document:
+    toc: false
+    number_sections: yes
+header-includes:
+  \setlength{\parindent}{1em}
+  \usepackage{float}
+  \renewcommand{\thesubsection}{Question (\alph{subsection})}
+--- 
+
+**Reminders:** Make sure to read through the setup in markdown. Remember to fully report/interpret your results and estimates (in writing) + present them in tables/plots.
+``` {r setup, echo = FALSE, message = FALSE, warning = FALSE}
+# set default chunk options
+knitr::opts_chunk$set(fig.width = 4, fig.height = 3, 
+                      echo = TRUE, message = FALSE, warning = FALSE)
+
+# load packages
+packages=c(
+# Necessary for Assignment 2
+  "Match","plm", "tidyverse", "MatchIt", "RItools", "Hmisc", "lmtest", "estimatr",
+# You decide what works for you, these are the packages I use to display results ect, they may not be the ones you use.
+
+"gridExtra", "stargazer", "kableExtra",
+"purrr", "knitr", "broom",
+   
+  # Some Potentially useful packages from earlier examples
+           "stargazer", "here", "tidyr", "dplyr","stringr", "janitor", 
+           "cowplot", "ggplot2", "tinytex", "datasets", "tibble") # Used for Mock assignment
+
+for (i in packages) {
+  if (require(i,character.only=TRUE)==FALSE) {
+    install.packages(i,repos='http://cran.us.r-project.org')
+  }
+  else {
+    require(i,character.only=TRUE)
+  }
+}
+
+# Disable scientific notation if you want
+options(scipen=999)
+
+```
+
+
+# Part 1 Treatment Ignorability Assumption and Applying Matching Estimators (19 points):
+The goal is to estimate the causal effect of maternal smoking during pregnancy on infant birth weight using the treatment ignorability assumptions. The data are taken from the National Natality Detail Files, and the extract “SMOKING_EDS241.csv”' is a random sample of all births in Pennsylvania during 1989-1991. Each observation is a mother-infant pair. The key variables are:
+
+**The outcome and treatment variables are:**
+
+\indent birthwgt=birth weight of infant in grams
+
+\indent tobacco=indicator for maternal smoking
+
+**The control variables are:**
+
+\indent mage (mother's age), meduc (mother's education), mblack (=1 if mother identifies as Black), alcohol (=1 if consumed alcohol during pregnancy), first (=1 if first child), diabete (=1 if mother diabetic), anemia (=1 if mother anemic)
+
+```{r , include=TRUE}
+# Load data for Part 1
+smoking<- read_csv(here::here("Assignment-2", "data", "SMOKING_EDS241.csv"))
+```
+
+## Mean Differences, Assumptions, and Covariates _(3 pts)_
+a) 
+- What is the mean difference in birth weight of infants with smoking and non-smoking mothers [1 pts]? 
+- Under what assumption does this correspond to the average treatment effect of maternal smoking during pregnancy on infant birth weight [0.5 pts]? 
+- Calculate and create a table demonstrating the differences in the mean proportions/values of covariates observed in smokers and non-smokers (remember to report whether differences are statistically significant) and discuss whether this provides empirical evidence for or against this assumption. Remember that this is observational data.
+- What other quantitative empirical evidence or test could help you assess the former assumption? [1.5 pts: 0.5 pts table, 1 pts discussion]
+
+```{r , include=TRUE}
+## Calculate mean difference. Remember to calculate a measure of statistical significance
+smoking_t <- t.test(smoking$birthwgt[smoking$tobacco==0], smoking$birthwgt[smoking$tobacco==1])
+
+diff(smoking_t$estimate)
+```
+
+- **On average babies born to mothers who smoke are 244.53 grams less than babies born to mothers who do not smoke in Pennsylvania between 1989 and 1991 (p-value of less than 1 out of 1000 making this measure statistically significant, with over 99% confidence).**
+
+- **This corresponds to the average treatment effect of maternal smoking during pregnancy on infant birth weight when the assumption that the treatment which is smoking, is not correlated with any other variables or factors. The treatment ignoreability assumption that there is no other major differences between our control and treatment group.**
+
+```{r}
+# Selecting binary and continuous variables from the dataset
+pretreat_binary <- smoking %>%
+  select(anemia, diabete, tobacco, alcohol, mblack)
+pretreat_continuous <- smoking %>%
+  select(mage, meduc, birthwgt, tobacco)
+
+# Initialize empty data frames to store results of tests
+prop_test_results <- data.frame()
+t_test_results <- data.frame()
+
+# Identifying binary variables for proportion tests
+binary_vars <- names(pretreat_binary)
+
+for (var in binary_vars) {
+# Splitting the data into treated and untreated groups for the current variable
+treated <- pretreat_binary %>% filter(tobacco == 1) %>% pull(!!sym(var))
+untreated <- pretreat_binary %>% filter(tobacco == 0) %>% pull(!!sym(var))
+# Performing the proportion test
+prop_test_result <- prop.test(x = c(sum(treated), sum(untreated)),
+n = c(length(treated), length(untreated)),
+correct = FALSE)
+
+# Storing the tidy results of the proportion test in the data frame
+prop_test_result_tidy <- broom::tidy(prop_test_result)
+prop_test_result_tidy$Variable <- var
+prop_test_results <- rbind(prop_test_results, prop_test_result_tidy)
+}
+
+# Identifying continuous variables for t-tests
+continuous_vars <- names(pretreat_continuous)[grepl("(m|w)", names(pretreat_continuous))]
+
+for (vars in continuous_vars) {
+
+# Dynamically creating the formula for the t-test
+formula <- as.formula(paste(vars, "~ tobacco"))
+  
+t_test_result <- t.test(formula, data = pretreat_continuous)
+
+t_test_result_tidy <- broom::tidy(t_test_result)
+t_test_result_tidy$Variable <- vars
+t_test_results <- rbind(t_test_results, t_test_result_tidy)
+}
+# Combining the results of proportion and t-tests into a single data frame
+combined_results <- bind_rows(
+prop_test_results %>%
+  select(Variable, estimate1, estimate2, p.value),
+t_test_results %>%
+  select(Variable, estimate1, estimate2, p.value)
+# remove tobacco from tablle as that is our treatment
+)[-3,]
+
+# Creating a table for output using kable and kableExtra
+combined_results_table <- kable(combined_results, format = "latex",
+col.names = c("Variable", "Proportion or Mean Treated",
+"Proportion or Mean Control", "P-Value"),
+caption = "Treated and Untreated Pre-treatment Proportion and T- Test") |> 
+kable_styling(font_size = 7, latex_options = "hold_position")
+
+# Displaying the table
+combined_results_table
+```
+
+- **Amongst the treatment and control there is strong evidence that there is a difference between smokers and nonsmokers for all covariates listed except diabetes(p-values of less than 1 out of 1000, diabete p-value = 0.885). This provides emperical evidence against the assumption that there are no differences between the control and treatment groups**
+
+- **You could test using a logistic regression to see if one of the covariates also has statistical significance on infant birth weight.**
+
+## ATE and Covariate Balance _(3 pts)_
+b) 
+- Assume that maternal smoking is randomly assigned conditional on the observable covariates listed above. Estimate the effect of maternal smoking on birth weight using an OLS regression with NO linear controls for the covariates [0.5 pts].
+- Perform the same estimate including the control variables [0.5 pts].
+- Next, compute indices of covariate imbalance between the treated and non-treated regarding these covariates (see example file from class). Present your results in a table [1 pts]. What do you find and what does it say regarding whether the assumption you mentioned responding to a) is fulfilled? [1 pts]
+
+```{r , include=TRUE}
+# ATE Regression univariate
+ATE_univariate <- lm(birthwgt ~ tobacco, data = smoking)
+
+# ATE with covariates
+ATE_covariate <- lm(birthwgt ~ tobacco + anemia + diabete + alcohol + mblack + first + mage + meduc, data = smoking)
+
+# Present Regression Results
+sjPlot::tab_model(ATE_univariate)
+sjPlot::tab_model(ATE_covariate)
+
+# Covariate balance
+balance_covar <- xBalance(tobacco ~ anemia + diabete + alcohol + mblack + first + mage + meduc, data = smoking,
+         report=c("std.diffs","chisquare.test", "p.values"))
+
+# Balance Table 
+balance_covar_df <- as.data.frame(balance_covar)
+
+balance_table <- data.frame(balance_covar_df) %>%
+  tibble::rownames_to_column("corvar") %>% 
+  mutate_if(is.numeric, round, digits = 3) %>%
+  select(1:3)
+gt::gt(balance_table, caption = paste("chisquare:", round(balance_covar_df$overall.chisquare, 3), "df:", balance_covar_df$overall.df, "p.value:", balance_covar_df$overall.p.value))
+```
+
+-**From the univariate model, infants born to smokers are on average 244 grams less than infants born to non-smoking mothers (p-value less than 1 out of 1000). From the covariate model, infants born to mothers who are smokers are on average 228 grams less than infants born to smoking mothers (p-value less than 1 out of 1000). Both of these models indicate that smoking has a statistically significant effect on birth weight. The balance table is indicating the differences in smokers and nonsmokers for each individual variable while holding all the other variables constant. For all of the variables, except diabetes, the differences between smokers and non-smokers are statistically significant (p-values of less than 1 out of 1000). This means that we do not meet the ignoreability assumption that smoking and nonsmoking groups are the same across different covariates.**   
+
+## Propensity Score Estimation _(3 pts)_
+c) Next, estimate propensity scores (i.e. probability of being treated) for the sample, using the provided covariates. Create a regression table reporting the results of the regression and discuss what the covariate coefficients indicate and interpret one coefficient [1.5 pts]. Create histograms of the propensity scores comparing the distributions of propensity scores for smokers ('treated') and non-smokers ('control'), discuss the overlap and what it means [1.5 pts].
+
+```{r , include=TRUE}
+
+## Propensity Scores
+ps	<- glm(tobacco ~ anemia + diabete + alcohol + mblack + first + mage + meduc, data = smoking,	family	= binomial())
+
+sjPlot::tab_model(ps)
+```
+
+**The covariate coefficients represent the probability of being in the smoking or non-smoking group while holding other variables constant. Coefficients greater than 1 indicate that the variable increases the odds of being in the smoking group, while a coefficient of 1 decreases the odds of being in the smoking group. For example, for every 1 additional unit of alcohol consumed is 7.59 times more likely of being in the smoking group than the non-smoking group.**
+
+```{r}
+## PS Histogram Unmatched 
+smoking$psvalue	<- predict(ps,	type	= "response")
+
+# --- Drawing back to back histograms for propensity scores for treated and 
+# non-treated before matching
+histbackback(split(smoking$psvalue,	smoking$tobacco),
+             main= "Propensity	score	before	matching",
+             xlab=c("control",	"treatment"))
+
+```
+
+**The overlap of the propensity scores on the histogram indicate the amount of propensity scores that are well paired and have similar scores within the treatment and control groups. These values that overlap will provide the strongest basis to test upon as they are the most similar. Therefore the effect of the treatment is easier to distinguish between the overlapped groups as they are most similar.**
+
+## Matching Balance _(3 pts)_
+(d) Next, match treated/control mothers using your estimated propensity scores and nearest neighbor matching. Compare the balancing of pretreatment characteristics (covariates) between treated and non-treated units in the original dataset (from c) with the matched dataset (think about comparing histograms/regressions) [2 pts]. Make sure to report and discuss the balance statistics [1 pts].
+
+```{r , include=TRUE}
+
+## Nearest-neighbor Matching
+# --- Match	using	nearest-neighbor approach, i.e. treated units are assigned the 
+# non-treated unit with the closest propensity score as match 
+m_nn	<- matchit(tobacco ~ anemia + diabete + alcohol + mblack + first + mage + meduc,
+                data = smoking,
+                method= "nearest",
+                ratio	= 1)
+
+summary(m_nn)
+match_data	= match.data(m_nn)
+
+## Covariate Imbalance post matching: 
+# --- Computing	indices	of covariate	imbalance	after	matching
+# same command as above but using the matched data now
+# what you will see is that matching by propensity scores balances
+# the covariates between treated and non-treated that were used in the
+# estimation of the propensity scores
+balance_covar_match <- xBalance(tobacco ~ anemia + diabete + alcohol + mblack + first + mage + meduc, data = match_data,
+         report=c("std.diffs","chisquare.test", "p.values"))
+
+# Balance Table ...change this to the other format used earlier
+balance_covar_match_df <- as.data.frame(balance_covar_match)
+sjPlot::tab_df(balance_covar_match_df)
+
+## Histogram of PS after matching
+# Drawing back to back histograms for propensity scores for treated and 
+# non-treated after matching
+histbackback(split(match_data$psvalue,	match_data$tobacco),	main= "Propensity
+        score	after	matching",	xlab=c("control",	"treatment"))
+```
+
+**When comparing the xbalance results the matched dataset has much smaller coefficients in general than the unmatched data. This suggests that the variables are more balanced in each treatment group of smoking and non-smoking while holding all other variables constant. Furthermore, the variables are less significant than in the unmatched balance table (excluding meduc, and alcohol). This also indicates that there is less of a difference between the other variables which allows us to better compare our two groups with the effect of treatment. Additionally, the histogram reflects that the data's propensity scores are matched more with a more symmetrical shape between the treatment and control groups.** 
+
+## ATE with Nearest Neighbor _(3 pts)_
+(e) Estimate the ATT using the matched dataset. Report and interpret your result (Note: no standard error or significance test is required here)
+
+```{r , include=TRUE}
+## ATT
+# NOTE: This is an ATT estimate, NOT an ATE. Why? Because we picked nearest 
+# neighbor matches only for the treated. So we defined a counterfactual only for the
+# treated. We did not do a matching for all non-treated. Only if we had done this
+# and then calculated the average outcome differences for the whole population
+# between the matched pairs would we have estimated the ATE
+
+NT=sum(smoking$tobacco)
+
+## ATT
+sumdiff_data <- match_data %>%
+  group_by(subclass) %>%
+  mutate(diff=birthwgt[tobacco==1]-birthwgt[tobacco==0])
+
+sumdiff<-sum(sumdiff_data$diff)/2
+ATT_m_nn = 1/NT * sumdiff
+ATT_m_nn
+
+```
+
+**The ATT is the effect of treatment for those who received treatment, this means that for mothers who smoked infant birth weight is on average 222.93 grams less than infant birth weight born to mothers who did not smoke.**
+
+## ATE with WLS Matching _(3 pts)_
+f) Last, use the original dataset and perform the weighted least squares estimation of the ATE using the propensity scores (including controls). Report and interpret your results, here include both size and precision of estimate in reporting and interpretation.
+
+```{r , include=TRUE}
+## Weighted least Squares (WLS) estimator Preparation
+# --- estimate treatment effect with Weighted least Squares (WLS) estimator
+# Both the nearest neighbor matching estimator and the IPW estimattor do not
+# easily allow to calculated standard errors. They also do not allow to take
+# controls into consideration. Therefore the following weighted least squares
+# estimator has advantages
+PS <- smoking$psvalue
+D <- smoking$tobacco
+
+# calculation of the weights - see slide 25 of lecture 5
+smoking$wgt = (D/PS + (1-D)/(1-PS))
+
+
+## Weighted least Squares (WLS) Estimates
+# With controls. Strongly advisable as outcomes depend on controls and including
+# them allows to estimate the ATE with more precision
+# --> the treatment effect has a lower standard error. Don't get confused by the
+# lack of statistical significance compared to the case without controls. It is
+# because the estimated treatment effect is smaller
+reg_wls_c	<-lm(birthwgt ~ tobacco + anemia + diabete + alcohol + mblack + first + mage + meduc, data = smoking,
+           weights = wgt)
+
+
+## Present Results
+sjPlot::tab_model(reg_wls_c)
+```
+
+**The ATE using propensity scores including controls we are able to determine the difference in means of the smoking and non-smoking groups. Therefore, on average infants born to mothers who smoke are 224.85 grams less than infants born to mothers who do not smoke (p-value of less than 1 out of 1000). Additionally, through the process of weighting the variables, diabetes and all the other covariates are significant predictors except anemia which has become less significant (p-value of less than 1 out of 1000, p-value = 0.517) on birth weight.**
+
+## Differences in Estimates _(1 pts)_ 
+g) Explain why it was to be expected given your analysis above that there is a difference between your estimates in e) and f)? 
+
+**I was expecting a difference between the ATE and ATT. The ATT was calculated using nearest 
+neighbor matches only for the treated, so we defined a counterfactual only for the treated or smoking group. We did not do a matching for all non-treated observations. To calculate the ATE we then calculated the average outcome differences for the whole population including the control group of non-smoking mothers between the matched pairs. Therefore these numbers should be different.**
+
+
+\newpage
+
+# Part 2 Panel model and fixed effects (6 points)
+\indent We will use the  progresa data from last time as well as a new dataset. In the original dataset, treatment households had been receiving the transfer for a year. Now, you get an additional dataset with information on the same households from before the program was implemented, establishing a baseline study (from 1997), and the same data we worked with last time (from 1999).
+\indent *Note: You will need to install the packages plm and dplyr (included in template preamble). Again, you can find a description of the variables at the bottom of PDF and HERE.
+
+## Estimating Effect with First Difference _(3 pts: 1.5 pts estimate, 1.5 pts interpretation)_
+Setup: Load the new baseline data (progresa_pre_1997.csv) and the follow-up data (progresa_post_1999.csv) into R. Note that we created a time denoting variable (with the same name, 'year') in BOTH datasets. Then, create a panel dataset by appending the data (i.e. binding the dataset row-wise together creating a single dataset). We want to examine the same outcome variable as before, value of animal holdings (vani).
+
+```{r , include=TRUE, message = FALSE}
+## Load the datasets
+pre_1997 <- read_csv(here::here("Assignment-2", "data", "progresa_pre_1997.csv"))
+post_1999 <- read_csv(here::here("Assignment-2", "data", "progresa_post_1999.csv"))
+
+## Append post to pre dataset 
+progresa <- rbind(pre_1997, post_1999) |> 
+  mutate(treatment = replace_na(treatment, 0)) 
+
+```
+a) Estimate a first-difference (FD) regression manually, interpret the results briefly (size of coefficient and precision!)
+\indent *Note: Calculate the difference between pre- and post- program outcomes for each family. To do that, follow these steps and the code given in the R-template:
+
+```{r, include=TRUE}
+## i. Sort the panel data in the order in which you want to take differences, i.e. by household and time.
+
+## Create first differences of variables
+progresa_fd <- progresa |> 
+  arrange(hhid, year) |>  
+  group_by(hhid) |> 
+  
+  ## ii. Calculate the first difference using the lag function from the dplyr package.
+  mutate(vani_fd = vani - dplyr::lag(vani),
+         treatment_fd = treatment - dplyr::lag(treatment)) 
+
+## iii. Estimate manual first-difference regression (Estimate the regression using the newly created variables.)
+fd_manual <- lm(vani_fd ~ treatment, data = progresa_fd)
+
+sjPlot::tab_model(fd_manual)
+```
+
+**The coefficient indicates that on average families who participated in the program, had their animal holdings increase by 256.95 pesos according to the survey recorded in 1999 (p-value 0.002).**
+
+## Fixed Effects Estimates _(2 pts: 1 pts estimate, 1.5 interpretation)_
+b) Now also run a fixed effects (FE or ‘within’) regression and compare the results. Interpret the estimated treatment effects briefly (size of coefficient and precision!)
+
+```{r, include=TRUE}
+progresa_factor <- progresa |> 
+  mutate(hhid = as.factor(hhid),
+         year = as.factor(year),
+         treatment = as.factor(treatment))
+
+# Fixed Effects Regression
+within1 <- plm(vani ~ treatment,
+               index = c("state", "year"),
+               model = "within",
+               effect = "twoways",
+               data = progresa_factor)
+
+# Calculate standard errors (note slightly different procedure with plm package)
+se_within1 <- coeftest(within1,
+                       vcov = vcovHC(within1, type = "HC2", method="white1"))[, "Std. Error"]
+
+# Reformat standard errors for stargazer()
+se_within1 <- list(se_within1)
+
+# Present Regression Results
+stargazer(within1, keep=c("treatment"), se = se_within1, type="text")
+```
+
+**The coefficient indicates that on average family who participated in the program, had their animal holdings increase by 160.59 pesos according to the survey recorded in 1999 as compared to a family who did not participate in the program (p-value < 0.01).**
+
+## First Difference and Fixed Effects and Omitted Variable Problems _(1 pts)_
+c) Explain briefly how the FD and FE estimator solves a specific omitted variable problem? Look at the example on beer tax and traffic fatalities from class to start thinking about ommitted variables. Give an example of a potential omitted variable for the example we are working with here that might confound our results? For that omitted variable, is a FE or FD estimator better? One example is enough.
+
+The fixed effect estimator solves a problem in omitted variables bias by introducing a dummy vairable in order to account for variables that change over time but do not change over the observational unit. The first difference estimator solves a problem in omitted variable bias by 
+
