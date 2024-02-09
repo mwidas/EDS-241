@@ -1,15 +1,16 @@
 ---
-title: "EDS241: Assignment 2"
+title: 'EDS241: Assignment 2'
 author: "Melissa Widas"
 date: '`r format(Sys.time(), "%m/%d/%Y")`'
-output: 
+output:
+  html_document:
+    toc: no
+    df_print: paged
   pdf_document:
-    toc: false
+    toc: no
     number_sections: yes
-header-includes:
-  \setlength{\parindent}{1em}
-  \usepackage{float}
-  \renewcommand{\thesubsection}{Question (\alph{subsection})}
+header-includes: \setlength{\parindent}{1em} \usepackage{float} \renewcommand{\thesubsection}{Question
+  (\alph{subsection})}
 --- 
 
 **Reminders:** Make sure to read through the setup in markdown. Remember to fully report/interpret your results and estimates (in writing) + present them in tables/plots.
@@ -177,7 +178,10 @@ balance_table <- data.frame(balance_covar_df) %>%
   tibble::rownames_to_column("corvar") %>% 
   mutate_if(is.numeric, round, digits = 3) %>%
   select(1:3)
-gt::gt(balance_table, caption = paste("chisquare:", round(balance_covar_df$overall.chisquare, 3), "df:", balance_covar_df$overall.df, "p.value:", balance_covar_df$overall.p.value))
+gt::gt(balance_table,
+       caption = paste("chisquare:", round(balance_covar_df$overall.chisquare, 3)[1],
+                       "df:", balance_covar_df$overall.df[1],
+                       "p.value:", balance_covar_df$overall.p.value[1]))
 ```
 
 -**From the univariate model, infants born to smokers are on average 244 grams less than infants born to non-smoking mothers (p-value less than 1 out of 1000). From the covariate model, infants born to mothers who are smokers are on average 228 grams less than infants born to smoking mothers (p-value less than 1 out of 1000). Both of these models indicate that smoking has a statistically significant effect on birth weight. The balance table is indicating the differences in smokers and nonsmokers for each individual variable while holding all the other variables constant. For all of the variables, except diabetes, the differences between smokers and non-smokers are statistically significant (p-values of less than 1 out of 1000). This means that we do not meet the ignoreability assumption that smoking and nonsmoking groups are the same across different covariates.**   
@@ -234,9 +238,17 @@ match_data	= match.data(m_nn)
 balance_covar_match <- xBalance(tobacco ~ anemia + diabete + alcohol + mblack + first + mage + meduc, data = match_data,
          report=c("std.diffs","chisquare.test", "p.values"))
 
-# Balance Table ...change this to the other format used earlier
+# Balance Table 
 balance_covar_match_df <- as.data.frame(balance_covar_match)
-sjPlot::tab_df(balance_covar_match_df)
+
+balance_table_match <- data.frame(balance_covar_match_df) %>%
+  tibble::rownames_to_column("corvar") %>% 
+  mutate_if(is.numeric, round, digits = 3) %>%
+  select(1:3)
+gt::gt(balance_table,
+       caption = paste("chisquare:", round(balance_covar_match_df$overall.chisquare, 3)[1],
+                       "df:", balance_covar_match_df$overall.df[1],
+                       "p.value:", round(balance_covar_match_df$overall.p.value, 3)[1]))
 
 ## Histogram of PS after matching
 # Drawing back to back histograms for propensity scores for treated and 
@@ -328,8 +340,7 @@ pre_1997 <- read_csv(here::here("Assignment-2", "data", "progresa_pre_1997.csv")
 post_1999 <- read_csv(here::here("Assignment-2", "data", "progresa_post_1999.csv"))
 
 ## Append post to pre dataset 
-progresa <- rbind(pre_1997, post_1999) |> 
-  mutate(treatment = replace_na(treatment, 0)) 
+progresa <- rbind(pre_1997, post_1999)
 
 ```
 a) Estimate a first-difference (FD) regression manually, interpret the results briefly (size of coefficient and precision!)
@@ -353,7 +364,7 @@ fd_manual <- lm(vani_fd ~ treatment, data = progresa_fd)
 sjPlot::tab_model(fd_manual)
 ```
 
-**The coefficient indicates that on average families who participated in the program, had their animal holdings increase by 256.95 pesos according to the survey recorded in 1999 (p-value 0.002).**
+**The coefficient indicates that on average families who participated in the program, had their animal holdings increase by 287.90 pesos according to the survey recorded in 1999 (p-value 0.002).**
 
 ## Fixed Effects Estimates _(2 pts: 1 pts estimate, 1.5 interpretation)_
 b) Now also run a fixed effects (FE or ‘within’) regression and compare the results. Interpret the estimated treatment effects briefly (size of coefficient and precision!)
@@ -382,10 +393,11 @@ se_within1 <- list(se_within1)
 stargazer(within1, keep=c("treatment"), se = se_within1, type="text")
 ```
 
-**The coefficient indicates that on average family who participated in the program, had their animal holdings increase by 160.59 pesos according to the survey recorded in 1999 as compared to a family who did not participate in the program (p-value < 0.01).**
+**The first difference model estimated a much larger and positive treatment effect, while the first difference model estimated a negative treatment effect. The index is controlling for year and state so if there are differences happening over time we are controlling for those and if there are differences between the states we are controlling for that too. Using within fixed effects controls for variations across time and location. Therefore by controlling for variations across state and time on those means that families who did participate in the program have animal holdings 231.84 pesos less than families that did not participate in the program (p-value<0.01).**
 
 ## First Difference and Fixed Effects and Omitted Variable Problems _(1 pts)_
 c) Explain briefly how the FD and FE estimator solves a specific omitted variable problem? Look at the example on beer tax and traffic fatalities from class to start thinking about ommitted variables. Give an example of a potential omitted variable for the example we are working with here that might confound our results? For that omitted variable, is a FE or FD estimator better? One example is enough.
 
-The fixed effect estimator solves a problem in omitted variables bias by introducing a dummy vairable in order to account for variables that change over time but do not change over the observational unit. The first difference estimator solves a problem in omitted variable bias by 
+**The fixed effect estimator solves a problem in omitted variables bias by introducing a dummy variable in order to account for variables that do not change over time but measures changes within a group. The first difference estimator solves a problem in omitted variable bias by accounting for effects that do vary over time. For example, a variable that might confound our results here is the average value of animals themselves. Animals are only worth as much as the current area based off of supply and demand. Therefore, the value of animals would fluctuate over time and by area resulting in discrepancies in household income and value, that do not accurately reflect the effect of the treatment on animal holdings. For this omitted variable the fixed effects estimator would be better as it would standardize for changes in the market value across states.** 
+
 
